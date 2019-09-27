@@ -16,19 +16,19 @@ The method we shall use generates a grid of points in a box of the complex plane
 
 Then each point is iterated using the equation above a finite number of times (say 2000).
 
-If within that number of iterations the threshold condition `|z| > 2` is satisfied then that  point is considered to be outside of the Mandelbrot Set.
+If within that number of iterations the threshold condition `|z| > 2` is satisfied then that point is considered to be outside of the Mandelbrot Set.
 
 Then counting the number of points within the Set and those outside will lead to an estimate of the area of the Set.
 
-Parallelise the serial code using the OpenMP directives and library routines that  you have learned so far. The method for doing this is as follows:
+Parallelise the serial code using the OpenMP directives and library routines that you have learned so far. The method for doing this is as follows:
 
-1. Start a parallel region before the main loop, nest making sure that any  private, shared or reduction variables within the region are correctly declared.
+1. Start a parallel region before the main loop, nest making sure that any private, shared or reduction variables within the region are correctly declared.
 2. Distribute the outermost loop across the threads available so that each thread has an equal number of the points.
 
     For this you will need to use some of the OpenMP library routines.
-    
+
     Once you have written the code try it out using 1, 2, 3 and 4 threads.
-    
+
     Check that the results are identical in each case, and compare the time taken for the calculations using different number of threads.
 
 ## Extra Exercise
