@@ -1,0 +1,3 @@
+*.o
+Mandelbrot/area.o
+a.out
