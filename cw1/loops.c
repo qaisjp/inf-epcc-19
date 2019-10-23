@@ -112,7 +112,7 @@ void loop2(void) {
   for (i=0; i<N; i++){
     for (j=0; j < jmax[i]; j++){
       for (k=0; k<j; k++){
-	c[i] += (k+1) * log (b[i][j]) * rN2;
+        c[i] += (k+1) * log (b[i][j]) * rN2;
       }
     }
   }
