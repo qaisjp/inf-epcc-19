@@ -42,7 +42,9 @@ Find out number of existing thread.
 - Returns int between `0` and `omp_get_num_threads() - 1`
 
 
-## Shared and private variables
+## Clauses
+
+### `shared`, `private`, and `default`
 
 Variables can be:
 - **shared**: all threads see _same copy_ - it reads/writes to the exact same variable
@@ -58,7 +60,7 @@ How they affect the parallel region:
 - Variables declared inside the region are **automatically private**
 - After the region ends, **original variable** is **unaffected** by changes to private copies
 
-### Private variables
+### `firstprivate`
 
 Because **private variables are uninitialised on entry to a parallel region**, sometimes you might need to
 initialise them. In C++ the default copy constructor is called to create and initialise the new object.
