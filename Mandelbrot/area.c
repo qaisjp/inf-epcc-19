@@ -20,7 +20,7 @@ int main()
   struct complex z, c;
 
   /*
- *   
+ *
  *
  *     Outer loops run over npoints, initialise z=c
  *
@@ -61,4 +61,13 @@ int main()
 
   printf("Area of Mandlebrot set = %12.8f +/- %12.8f\n", area, error);
   printf("Time = %12.8f seconds\n", finish - start);
+
+  double min_area = 1.50927328 - 0.00075464;
+  double max_area = 1.50927328 + 0.00075464;
+  printf("\nExpected output: Area of Mandlebrot set =   1.50927328 +/-   0.00075464\nOriginal time =   9.11457586 seconds\n\n");
+  if (area > max_area || area < min_area) {
+    printf("\033[1;31mTEST FAILED\033[0m: wanted between %12.8f and %12.8f\n", min_area, max_area);
+  } else {
+    printf("\033[0;36mTEST SUCCESS\033[0m\n");
+  }
 }
