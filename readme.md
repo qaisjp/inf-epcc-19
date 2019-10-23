@@ -172,6 +172,17 @@ This is useful to parallelise setup along all threads, and make one thread start
 All threads will do their `setup` in parallel, other threads will even do their `setup` in parallel with the thread
 that ends up doing the `input`. But all will wait until `input` is done before continuing with `work`.
 
+### `#pragma omp master`
+
+Indicates that some code must be executed by the master thread (thread `0`) only.
+
+There's **no sync point** at the end of the block. Other threads skip the block and continue executing (this is the only
+difference to the `single` directive).
+
+```
+#pragma omp master
+    structured block
+```
 
 ## Useful Functions
 `#include <omp.h>` first.
