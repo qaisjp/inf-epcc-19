@@ -98,3 +98,31 @@ However, if you modify the directive line to use `private` instead (`#pragma omp
 > i = 10
 
 So, **firstprivate will initialise the variable to the original value of the variable**.
+
+### `reduction(`_`op`_`:`_`list`_`)`
+
+A _reduction_ produces a **single value** from associative operations.
+
+**Examples of operations**: addition, multiplication, max, min, and, or
+
+Each thread reduces into a private copy, and then all those thread-specific results are reduces into a final result.
+
+**Example** ([jakascorner.com](http://jakascorner.com/blog/2016/06/omp-for-reduction.html#implementation))
+
+```c
+sum = 0;
+#pragma omp parallel for shared(sum, a) reduction(+: sum)
+for (auto i = 0; i < 9; i++)
+{
+    sum += a[i]
+}
+```
+
+Each thread performs a chunk of the computation:
+- thread 1: `sum1 = a[0] + a[1] + a[2]`
+- thread 2: `sum2 = a[3] + a[4] + a[5]`
+- thread 3: `sum3 = a[6] + a[7] + a[8]`
+
+And then, at the end, it reduces these operations **using the variable and operator you provide**: `sum = sum1 + sum + sum`
+
+![Example of reduction](http://jakascorner.com/pics/reduction_clause.png)
