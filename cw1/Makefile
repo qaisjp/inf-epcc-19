@@ -39,5 +39,5 @@ clean:
 	rm *.o loops
 
 test:
-	${MAKE} loops
-	./test-loops.sh
+	@${MAKE} -s loops
+	@./test-loops.sh
