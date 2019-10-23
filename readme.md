@@ -1,4 +1,13 @@
 ## Directives
+### Multi-line directives
+
+End the line with a `\`, like so
+
+```c
+#pragma omp parallel default(none) \
+        private(somevar)
+```
+
 ### `#pragma omp parallel`
 
 ```c
