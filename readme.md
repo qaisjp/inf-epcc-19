@@ -123,6 +123,6 @@ Each thread performs a chunk of the computation:
 - thread 2: `sum2 = a[3] + a[4] + a[5]`
 - thread 3: `sum3 = a[6] + a[7] + a[8]`
 
-And then, at the end, it reduces these operations **using the variable and operator you provide**: `sum = sum1 + sum + sum`
+And then, at the end, it reduces these operations **using the variable and operator you provide**: `sum = sum1 + sum2 + sum3`
 
 ![Example of reduction](http://jakascorner.com/pics/reduction_clause.png)
