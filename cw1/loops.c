@@ -108,7 +108,7 @@ void loop2(void) {
 
   rN2 = 1.0 / (double) (N*N);
 
-  #pragma omp parallel for default(none) private(i,j,k,rN2) shared(b,c,jmax)
+  #pragma omp parallel for default(none) private(i,j,k) firstprivate(rN2) shared(b,c,jmax)
   for (i=0; i<N; i++){
     for (j=0; j < jmax[i]; j++){
       for (k=0; k<j; k++){
