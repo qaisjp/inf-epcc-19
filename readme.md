@@ -58,4 +58,41 @@ How they affect the parallel region:
 - Variables declared inside the region are **automatically private**
 - After the region ends, **original variable** is **unaffected** by changes to private copies
 
-Note: _private objects are created using the default constructor_
+### Private variables
+
+Because **private variables are uninitialised on entry to a parallel region**, sometimes you might need to
+initialise them. In C++ the default copy constructor is called to create and initialise the new object.
+
+Use cases for this are uncommon, but can be done by `firstprivate(`[`list`]`)` clause.
+
+**Example** (from [Stack Overflow](https://stackoverflow.com/a/15309556/1517394))
+
+```c
+int i = 10;
+
+#pragma omp parallel firstprivate(i)
+{
+        printf("thread %d: i = %d\n", omp_get_thread_num(), i);
+        i = 1000 + omp_get_thread_num();
+}
+
+printf("i = %d\n", i);
+```
+
+The above code prints out:
+
+> thread 2: i = 10
+> thread 0: i = 10
+> thread 3: i = 10
+> thread 1: i = 10
+> i = 10
+
+However, if you modify the directive line to use `private` instead (`#pragma omp parallel firstprivate(i)`), you'll get:
+
+> thread 2: i = <random>
+> thread 1: i = <random>
+> thread 0: i = <random>
+> thread 3: i = <random>
+> i = 10
+
+So, **firstprivate will initialise the variable to the original value of the variable**.
