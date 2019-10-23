@@ -29,6 +29,7 @@ int main()
 
   start = omp_get_wtime();
 
+  #pragma omp parallel for default(none) private(ztemp) shared(c,z) reduction(+:numoutside)
   for (int i = 0; i < NPOINTS; i++)
   {
     for (int j = 0; j < NPOINTS; j++)
