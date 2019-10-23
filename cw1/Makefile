@@ -37,3 +37,7 @@ loops:   $(OBJ)
 #
 clean:
 	rm *.o loops
+
+test:
+	${MAKE} loops
+	./test-loops.sh
