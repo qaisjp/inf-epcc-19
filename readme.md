@@ -138,6 +138,41 @@ a good schedule which has good load balance and low overheads
 - `auto`
     - may be useful if the loop is executed many times over
 
+### `#pragma omp single`
+
+Indicates that some code must be executed by a single thread only.
+The first thread to reach this directive will execute the block.
+
+There's a sync point at the end of the block — all threads wait until the block is done.
+
+```
+#pragma omp single [clauses]
+        structured block      <- must contain a structured block, cannot branch into or out of it
+```
+
+**Clauses accepted:** `private`, `firstprivate`
+
+**Example** (see `slides/L04-worksharing.pdf#page=20`)
+
+```
+#pragma omp parallel
+{
+    setup(x);
+    
+    #pragma omp single
+    {
+        input(y);
+    }
+    
+    work(x, y);
+}
+```
+
+This is useful to parallelise setup along all threads, and make one thread start prompting for input when it's ready.
+All threads will do their `setup` in parallel, other threads will even do their `setup` in parallel with the thread
+that ends up doing the `input`. But all will wait until `input` is done before continuing with `work`.
+
+
 ## Useful Functions
 `#include <omp.h>` first.
 
