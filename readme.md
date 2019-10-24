@@ -85,7 +85,7 @@ This directive is **NOT THE SAME** as the `for` directive or the `parallel` dire
 
 This clause gives a variety of options for specifying which loops iterations are executed by which thread.
 
-- `kind` is oneof `static, dynamic, guided, auto,` or `runtime`
+- `kind` is oneof `static, dynamic, guided, auto,` or [`runtime`](http://jakascorner.com/blog/2016/06/omp-for-scheduling.html#runtime)
 - `chunksize` is an integer expression with positive value
 
 **`static` schedule** (see `slides/L04-worksharing.pdf#page=11` and page 12)
