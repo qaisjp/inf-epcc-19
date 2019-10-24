@@ -1,3 +1,5 @@
+// Exam number: B103702
+
 #include <stdio.h>
 #include <math.h>
 
