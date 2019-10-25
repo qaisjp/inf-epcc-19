@@ -38,8 +38,8 @@ loops:   $(OBJ)
 clean:
 	rm *.o loops
 
-test:
-	@${MAKE} -s loops
+.PHONY: test
+test: loops
 	@./test-loops.sh
 
 deploy: loops
