@@ -41,3 +41,6 @@ clean:
 test:
 	@${MAKE} -s loops
 	@./test-loops.sh
+
+deploy: loops
+	@./deploy-loops.sh
