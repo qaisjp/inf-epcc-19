@@ -89,22 +89,27 @@ void init2(void){
  
 } 
 
-
-void runloop(int loopid)  {
-
-#pragma omp parallel default(none) shared(loopid) 
+void runloop(int loopid)
+{
+#pragma omp parallel default(none) shared(loopid)
   {
-    int myid  = omp_get_thread_num();
-    int nthreads = omp_get_num_threads(); 
-    int ipt = (int) ceil((double)N/(double)nthreads); 
-    int lo = myid*ipt;
-    int hi = (myid+1)*ipt;
-    if (hi > N) hi = N; 
-  
-    switch (loopid) { 
-       case 1: loop1chunk(lo,hi); break;
-       case 2: loop2chunk(lo,hi); break;
-    } 
+    int myid = omp_get_thread_num();
+    int nthreads = omp_get_num_threads();
+    int ipt = (int)ceil((double)N / (double)nthreads);
+    int lo = myid * ipt;
+    int hi = (myid + 1) * ipt;
+    if (hi > N)
+      hi = N;
+
+    switch (loopid)
+    {
+    case 1:
+      loop1chunk(lo, hi);
+      break;
+    case 2:
+      loop2chunk(lo, hi);
+      break;
+    }
   }
 }
 
