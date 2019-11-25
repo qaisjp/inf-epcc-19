@@ -87,30 +87,181 @@ void init2(void){
     }
   }
  
-} 
+}
+
+struct range
+{
+  int lo;
+  int hi;
+};
+
+#include <stdlib.h>
+
+// #define DEBUG 1
+#ifdef DEBUG
+static int firstrun = 1;
+#endif
+
+// next updates the lo and hi for a thread
+// and returns the range that needs to be processed
+// NOT MEMORY SAFE.
+struct range next(int nthreads, struct range *iterations, int myid)
+{
+  struct range range = iterations[myid];
+  int remaining = range.hi - range.lo;
+  int size = (int)ceil((double)remaining / (double)nthreads);
+#ifdef DEBUG
+  if (firstrun && myid == 0)
+    printf("[next\t] thread %d\trange.lo: %d\thi:%d\tsize: %d\n", myid, range.lo, range.hi, size);
+#endif
+  int new_lo = range.lo + size;
+  if (new_lo > range.hi)
+  {
+    new_lo = range.hi;
+  }
+  iterations[myid].lo = new_lo;
+  range.hi = new_lo;
+#ifdef DEBUG
+  if (firstrun && myid == 0)
+    printf("[next1\t] thread %d\trange.lo: %d\thi:%d\tsize: %d\n", myid, range.lo, range.hi, size);
+#endif
+  return range;
+}
+
+// void runchunk(int loopid, int lo, int hi) __attribute__((always_inline));
+void runchunk(int loopid, int lo, int hi)
+{
+  switch (loopid)
+  {
+  case 1:
+    loop1chunk(lo, hi);
+    break;
+  case 2:
+    loop2chunk(lo, hi);
+    break;
+  }
+}
 
 void runloop(int loopid)
 {
-#pragma omp parallel default(none) shared(loopid)
+#ifdef DEBUG
+  if (firstrun)
   {
-    int myid = omp_get_thread_num();
-    int nthreads = omp_get_num_threads();
-    int ipt = (int)ceil((double)N / (double)nthreads);
-    int lo = myid * ipt;
-    int hi = (myid + 1) * ipt;
-    if (hi > N)
-      hi = N;
+    printf("DEBUG!\n");
+  }
+#endif
 
-    switch (loopid)
+  struct range *iterations;
+#pragma omp parallel default(none) shared(loopid, iterations)
+  {
+    int nthreads = omp_get_num_threads();
+
+#pragma omp single
     {
-    case 1:
-      loop1chunk(lo, hi);
-      break;
-    case 2:
-      loop2chunk(lo, hi);
-      break;
+      iterations = calloc(nthreads, sizeof(struct range));
+    }
+
+    double ipt = (double)N / (double)nthreads;
+    double frac = 1 / (double)nthreads;
+
+    int myid = omp_get_thread_num();
+    iterations[myid].lo = (int)ceil(myid * ipt);
+    iterations[myid].hi = (int)ceil((myid + 1) * ipt);
+    if (iterations[myid].hi > N)
+    {
+      iterations[myid].hi = N;
+    }
+#ifdef DEBUG
+    if (firstrun)
+      printf("[stage0\t] thread %d\tlo:%d\thi:%d\n", myid, iterations[myid].lo, iterations[myid].hi);
+#endif
+
+// this is needed so that `iterations` is correctly initialised!
+#pragma omp barrier
+
+    while (1)
+    {
+      int lo, hi;
+
+#pragma omp critical
+      {
+        struct range range = next(nthreads, iterations, myid);
+        lo = range.lo;
+        hi = range.hi;
+      }
+
+#ifdef DEBUG
+      if (firstrun && myid == 0)
+      {
+        printf("[stage1\t] lo: %d\thi: %d\n", lo, hi);
+      }
+#endif
+
+      if ((hi - lo) <= 0)
+      {
+#ifdef DEBUG
+        if (firstrun && myid == 0)
+        {
+          printf("[stage1\t] break %d\n", hi - lo);
+        }
+#endif
+        break;
+      }
+
+      runchunk(loopid, lo, hi);
+    }
+
+    while (1)
+    {
+      int lo = 0;
+      int hi = 0;
+#pragma omp critical
+      {
+        int ml_idx = 0;
+        int ml_num = iterations[0].hi - iterations[0].lo;
+        for (int i = 1; i < nthreads; i++)
+        {
+          int num = iterations[i].hi - iterations[i].lo;
+          if (num > ml_num)
+          {
+            ml_num = num;
+            ml_idx = i;
+          }
+        }
+
+        if (ml_num > 0)
+        {
+          struct range range = next(nthreads, iterations, ml_idx);
+          lo = range.lo;
+          hi = range.hi;
+        }
+      }
+
+#ifdef DEBUG
+      if (firstrun && myid == 0)
+      {
+        printf("[stage2\t] lo: %d\thi: %d\n", lo, hi);
+      }
+#endif
+
+      if ((hi - lo) <= 0)
+      {
+#ifdef DEBUG
+        if (firstrun && myid == 0)
+        {
+          printf("[stage2\t] break %d\n", hi - lo);
+        }
+#endif
+        break;
+      }
+
+      runchunk(loopid, lo, hi);
     }
   }
+
+#ifdef DEBUG
+  firstrun = 0;
+#endif
 }
 
 void loop1chunk(int lo, int hi) { 
