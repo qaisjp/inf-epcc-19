@@ -152,9 +152,20 @@ void runloop(int loopid)
 #endif
 
   struct range *iterations;
+#ifdef DEBUG
+#pragma omp parallel default(none) shared(loopid, iterations, firstrun)
+#else
 #pragma omp parallel default(none) shared(loopid, iterations)
+#endif
   {
     int nthreads = omp_get_num_threads();
+
+#ifdef DEBUG
+  if (firstrun)
+  {
+    printf("Number of threads: %d\n", nthreads);
+  }
+#endif
 
 #pragma omp single
     {
