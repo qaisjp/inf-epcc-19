@@ -107,37 +107,37 @@ static int firstrun = 1;
 // NOT MEMORY SAFE.
 struct range next(int nthreads, struct range *iterations, int myid)
 {
-  struct range range = iterations[myid];
-  int remaining = range.hi - range.lo;
-  int size = (int)ceil((double)remaining / (double)nthreads);
+  struct range rng = iterations[myid];
+  int remaining = rng.hi - rng.lo;
+  int size = (int) ceil((double) remaining / (double) nthreads);
 #ifdef DEBUG
   if (firstrun && myid == 0)
-    printf("[next\t] thread %d\trange.lo: %d\thi:%d\tsize: %d\n", myid, range.lo, range.hi, size);
+    printf("[next\t] thread %d\trng.lo: %d\thi:%d\tsize: %d\n", myid, rng.lo, rng.hi, size);
 #endif
-  int new_lo = range.lo + size;
-  if (new_lo > range.hi)
+  int new_lo = rng.lo + size;
+  if (new_lo > rng.hi)
   {
-    new_lo = range.hi;
+    new_lo = rng.hi;
   }
   iterations[myid].lo = new_lo;
-  range.hi = new_lo;
+  rng.hi = new_lo;
 #ifdef DEBUG
   if (firstrun && myid == 0)
-    printf("[next1\t] thread %d\trange.lo: %d\thi:%d\tsize: %d\n", myid, range.lo, range.hi, size);
+    printf("[next1\t] thread %d\trng.lo: %d\thi:%d\tsize: %d\n", myid, rng.lo, rng.hi, size);
 #endif
-  return range;
+  return rng;
 }
 
-// void runchunk(int loopid, int lo, int hi) __attribute__((always_inline));
-void runchunk(int loopid, int lo, int hi)
+// runchunk runs a chunk for a specific loop, between a specific range
+void runchunk(int loopid, struct range rng)
 {
   switch (loopid)
   {
   case 1:
-    loop1chunk(lo, hi);
+    loop1chunk(rng.lo, rng.hi);
     break;
   case 2:
-    loop2chunk(lo, hi);
+    loop2chunk(rng.lo, rng.hi);
     break;
   }
 }
@@ -181,40 +181,37 @@ void runloop(int loopid)
 
     while (1)
     {
-      int lo, hi;
+      struct range rng;
 
 #pragma omp critical
       {
-        struct range range = next(nthreads, iterations, myid);
-        lo = range.lo;
-        hi = range.hi;
+        rng = next(nthreads, iterations, myid);
       }
 
 #ifdef DEBUG
       if (firstrun && myid == 0)
       {
-        printf("[stage1\t] lo: %d\thi: %d\n", lo, hi);
+        printf("[stage1\t] lo: %d\thi: %d\n", rng.lo, rng.hi);
       }
 #endif
 
-      if ((hi - lo) <= 0)
+      if ((rng.hi - rng.lo) <= 0)
       {
 #ifdef DEBUG
         if (firstrun && myid == 0)
         {
-          printf("[stage1\t] break %d\n", hi - lo);
+          printf("[stage1\t] break %d\n", rng.hi - rng.lo);
         }
 #endif
         break;
       }
 
-      runchunk(loopid, lo, hi);
+      runchunk(loopid, rng);
     }
 
     while (1)
     {
-      int lo = 0;
-      int hi = 0;
+      struct range rng = { .lo = 0, .hi = 0 };
 #pragma omp critical
       {
         int ml_idx = 0;
@@ -231,31 +228,29 @@ void runloop(int loopid)
 
         if (ml_num > 0)
         {
-          struct range range = next(nthreads, iterations, ml_idx);
-          lo = range.lo;
-          hi = range.hi;
+          rng = next(nthreads, iterations, ml_idx);
         }
       }
 
 #ifdef DEBUG
       if (firstrun && myid == 0)
       {
-        printf("[stage2\t] lo: %d\thi: %d\n", lo, hi);
+        printf("[stage2\t] lo: %d\thi: %d\n", rng.lo, rng.hi);
       }
 #endif
 
-      if ((hi - lo) <= 0)
+      if ((rng.hi - rng.lo) <= 0)
       {
 #ifdef DEBUG
         if (firstrun && myid == 0)
         {
-          printf("[stage2\t] break %d\n", hi - lo);
+          printf("[stage2\t] break %d\n", rng.hi - rng.lo);
         }
 #endif
         break;
       }
 
-      runchunk(loopid, lo, hi);
+      runchunk(loopid, rng);
     }
   }
 
