@@ -15,7 +15,7 @@ for THREADS in 01 02 04 06 08 12 16; do
     echo ""
     for NUM in {00..99}; do
         # export OMP_SCHEDULE="static,64"
-        FILENAME="out/cw1-thread-$THREADS-n$NUM"
+        FILENAME="out/cw2-thread-$THREADS-n$NUM"
         echo "doing $FILENAME"
         if ! qsub threadloops.pbs -o "${FILENAME}.stdout.txt" -e "${FILENAME}.stderr.txt" -V; then
             echo -e "${RED}qsub was not happy!${NC}"

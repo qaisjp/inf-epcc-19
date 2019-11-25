@@ -37,3 +37,7 @@ loops2:   $(OBJ)
 #
 clean:
 	rm *.o loops2
+
+.PHONY: test
+test: loops2
+	@./test-loops.sh
