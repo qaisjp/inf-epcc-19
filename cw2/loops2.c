@@ -220,6 +220,11 @@ void runloop(int loopid)
       runchunk(loopid, rng);
     }
 
+#ifdef DEBUG
+    if (firstrun)
+      printf("[thread %d has completed its own work]\n", myid);
+#endif
+
     while (1)
     {
       struct range rng = { .lo = 0, .hi = 0 };
