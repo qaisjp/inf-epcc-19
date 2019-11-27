@@ -104,7 +104,7 @@ static int firstrun = 1;
 
 // next updates the lo and hi for a thread
 // and returns the range that needs to be processed
-// NOT MEMORY SAFE.
+// NOT THREAD SAFE.
 struct range next(int nthreads, struct range *iterations, int myid)
 {
   struct range rng = iterations[myid];
